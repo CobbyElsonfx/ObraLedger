@@ -1,4 +1,5 @@
 import { databaseHelpers, type User } from './database';
+import { config } from './config';
 
 export interface AuthUser {
   id: number;
@@ -107,7 +108,7 @@ class AuthService {
   private async authenticateWithBackend(credentials: LoginCredentials): Promise<AuthUser | null> {
     try {
       console.log('Attempting backend authentication...');
-      const response = await fetch('http://localhost:3001/api/auth/login', {
+      const response = await fetch(config.getApiUrl(config.api.endpoints.auth.login), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

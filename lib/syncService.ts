@@ -1,5 +1,6 @@
 import { databaseHelpers } from './database';
 import { authService } from './auth';
+import { config } from './config';
 
 export interface SyncRequest {
   clientChanges: {
@@ -14,16 +15,20 @@ export interface SyncRequest {
 }
 
 export interface SyncResponse {
-  serverChanges: {
-    deceased: any[];
-    contributors: any[];
-    contributions: any[];
-    expenses: any[];
-    arrears: any[];
-    settings: any[];
+  success: boolean;
+  data: {
+    serverChanges: {
+      deceased: any[];
+      contributors: any[];
+      contributions: any[];
+      expenses: any[];
+      arrears: any[];
+      settings: any[];
+    };
+    conflicts: any[];
+    syncTimestamp: string;
   };
-  conflicts: any[];
-  syncTimestamp: string;
+  message?: string;
 }
 
 export interface Conflict {
@@ -116,7 +121,7 @@ export class SyncService {
     console.log('Token type:', token.startsWith('eyJ') ? 'JWT' : 'Base64');
 
     try {
-      const response = await fetch('http://localhost:3001/api/sync/sync', {
+      const response = await fetch(config.getApiUrl(config.api.endpoints.sync.sync), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -269,7 +274,7 @@ export class SyncService {
   }
 
   // Start automatic sync
-  startAutoSync(intervalMinutes: number = 5): void {
+  startAutoSync(intervalMinutes: number = config.sync.intervalMinutes): void {
     if (this.syncInterval) {
       this.stopAutoSync();
     }
